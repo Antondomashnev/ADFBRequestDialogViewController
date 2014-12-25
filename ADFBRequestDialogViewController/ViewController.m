@@ -8,20 +8,76 @@
 
 #import "ViewController.h"
 
-@interface ViewController ()
+/*-------View Controllers-------*/
+#import "ADFBRequestDialogViewController.h"
+
+/*-------Frameworks-------*/
+#import <FacebookSDK/FacebookSDK.h>
+
+/*-------Views-------*/
+
+/*-------Helpers & Managers-------*/
+
+/*-------Models-------*/
+
+
+@interface ViewController ()<FBLoginViewDelegate>
+
+@property (nonatomic, strong) UIButton *showRequestDialogButton;
+@property (nonatomic, strong) FBLoginView *loginView;
 
 @end
 
 @implementation ViewController
 
-- (void)viewDidLoad {
+- (void)viewDidLoad
+{
     [super viewDidLoad];
-    // Do any additional setup after loading the view, typically from a nib.
+    [self addFacebookLoginView];
+    [self addShowRequestDialogButton];
 }
 
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
+}
+
+#pragma mark - UI
+
+- (void)addFacebookLoginView
+{
+    FBLoginView *loginView = [[FBLoginView alloc] init];
+    loginView.center = CGPointMake(self.view.center.x, self.view.center.y - 50);
+    loginView.delegate = self;
+    [self.view addSubview:loginView];
+    self.loginView = loginView;
+}
+
+- (void)addShowRequestDialogButton
+{
+    UIButton *button = [UIButton buttonWithType:UIButtonTypeSystem];
+    button.frame = CGRectMake(0, 0, 120, 44);
+    button.center = CGPointMake(self.loginView.center.x, self.loginView.center.y + self.loginView.frame.size.height + 22 + 10);
+    button.userInteractionEnabled = NO;
+    [button setTitle:@"Invite friends" forState:UIControlStateNormal];
+    [button addTarget:self action:@selector(showRequestDialogButtonClicked:) forControlEvents:UIControlEventTouchUpInside];
+    [self.view addSubview:button];
+    self.showRequestDialogButton = button;
+}
+
+#pragma mark - FBLoginViewDelegate
+
+- (void)loginViewShowingLoggedInUser:(FBLoginView *)loginView
+{
+    self.showRequestDialogButton.userInteractionEnabled = YES;
+}
+
+#pragma mark - Actions
+
+- (void)showRequestDialogButtonClicked:(id)sender
+{
+    ADFBRequestDialogViewController *vc = [[ADFBRequestDialogViewController alloc] initWithSession:[FBSession activeSession] message:@"YO" title:@"Invite friends" parameters:nil handler:nil];
+    [self presentViewController:vc animated:YES completion:nil];
 }
 
 @end
