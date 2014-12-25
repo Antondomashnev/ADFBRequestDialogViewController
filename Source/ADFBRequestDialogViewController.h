@@ -13,6 +13,15 @@
 
 @interface ADFBRequestDialogViewController : UIViewController
 
+@property (nonatomic, weak) UIWebView *dialogWebView;
+
 - (instancetype)initWithSession:(FBSession *)session message:(NSString *)message title:(NSString *)title parameters:(NSDictionary *)parameters handler:(FBWebDialogHandler)handler;
+
+/*!
+ @brief ADFBRequestDialogViewController use method swizzling to change FBDIalog UI because it's a private part of FacebookSDK
+        so everything may change in the future and therefore it might not work. Developer should use this method to avoid incorrect behaviour
+ @return YES if everything is good and this view controller can be shown. 
+ */
++ (BOOL)canBePresented;
 
 @end

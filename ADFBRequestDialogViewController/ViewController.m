@@ -76,6 +76,10 @@
 
 - (void)showRequestDialogButtonClicked:(id)sender
 {
+    if(![ADFBRequestDialogViewController canBePresented]){
+        return;
+    }
+    
     ADFBRequestDialogViewController *vc = [[ADFBRequestDialogViewController alloc] initWithSession:[FBSession activeSession] message:@"YO" title:@"Invite friends" parameters:nil handler:nil];
     [self presentViewController:vc animated:YES completion:nil];
 }

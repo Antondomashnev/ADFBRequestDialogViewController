@@ -79,6 +79,65 @@
 
 #pragma mark - Interface
 
++ (BOOL)doesCustomizationWork
+{
+    Class FBDialogClass = NSClassFromString(@"FBDialog");
+    if(!FBDialogClass){
+        NSLog(@"Error: FBDialog class doesnt exist");
+        return NO;
+    }
+    
+    if (!class_getInstanceMethod(FBDialogClass, @selector(drawRect:))) {
+        NSLog(@"Error: original method drawRect: not found");
+        return NO;
+    }
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wundeclared-selector"
+    if (!class_getInstanceMethod(FBDialogClass, @selector(showWebView))) {
+        NSLog(@"Error: original method showWebView not found");
+        return NO;
+    }
+    if (!class_getInstanceMethod(FBDialogClass, @selector(dismiss:))) {
+        NSLog(@"Error: original method dismiss: not found");
+        return NO;
+    }
+    if (!class_getInstanceMethod(FBDialogClass, @selector(dialogWillAppear))) {
+        NSLog(@"Error: original method dialogWillAppear not found");
+        return NO;
+    }
+    if (!class_getInstanceMethod(FBDialogClass, @selector(addObservers))) {
+        NSLog(@"Error: original method addObservers not found");
+        return NO;
+    }
+    if (!class_getInstanceMethod(FBDialogClass, @selector(dialogWillDisappear))) {
+        NSLog(@"Error: original method dialogWillDisappear not found");
+        return NO;
+    }
+    if (!class_getInstanceMethod(FBDialogClass, @selector(removeObservers))) {
+        NSLog(@"Error: original method dialogWillDisappear not found");
+        return NO;
+    }
+#pragma clang diagnostic pop
+    if(!class_getInstanceVariable(FBDialogClass, "closeButton")){
+        NSLog(@"Error: closeButton ivar not found");
+        return NO;
+    }
+    if(!class_getInstanceVariable(FBDialogClass, "modalBackgroundView")){
+        NSLog(@"Error: modalBackgroundView ivar not found");
+        return NO;
+    }
+    if(!class_getInstanceVariable(FBDialogClass, "webView")){
+        NSLog(@"Error: webView ivar not found");
+        return NO;
+    }
+    if(!class_getInstanceVariable(FBDialogClass, "everShown")){
+        NSLog(@"Error: everShown ivar not found");
+        return NO;
+    }
+    
+    return YES;
+}
+
 static BOOL isFBDialogAlreadyCustomized = NO;
 - (void)customizeFBDialog
 {
@@ -135,11 +194,12 @@ static BOOL isFBDialogAlreadyCustomized = NO;
     UIView *backgroundView = [dialogView valueForKey:@"modalBackgroundView"];
     backgroundView.frame = associatedViewController.view.frame;
     [backgroundView addSubview:dialogView];
-    [associatedViewController.view addSubview:backgroundView];
+    [associatedViewController.view insertSubview:backgroundView atIndex:0];
     
     UIWebView *webView = [dialogView valueForKey:@"webView"];
     webView.backgroundColor = associatedViewController.view.backgroundColor;
     webView.frame = dialogView.bounds;
+    associatedViewController.dialogWebView = webView;
 }
 
 #pragma mark - Customized methods
@@ -227,6 +287,15 @@ void FBDialog_swizzled_showWebView(id self, SEL _cmd)
     [super viewWillAppear:animated];
     [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent animated:YES];
     [FBWebDialogs presentRequestsDialogModallyWithSession:self.session message:self.message title:self.title parameters:self.parameters handler:self.handler];
+}
+
+#pragma mark - Static Interface
+
++ (BOOL)canBePresented
+{
+    
+    
+    return YES;
 }
 
 #pragma mark - UI
