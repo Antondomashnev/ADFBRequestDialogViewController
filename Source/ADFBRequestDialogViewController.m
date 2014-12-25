@@ -244,7 +244,7 @@ void FBDialog_swizzled_showWebView(id self, SEL _cmd)
 
 //------------------------------------------------------------------------//
 
-@interface ADFBRequestDialogViewController ()
+@interface ADFBRequestDialogViewController ()<UIScrollViewDelegate>
 
 @property (nonatomic, strong) FBSession *session;
 @property (nonatomic, strong) NSString *message;
@@ -259,6 +259,7 @@ void FBDialog_swizzled_showWebView(id self, SEL _cmd)
 @property (nonatomic, strong) UILabel *titleLabel;
 @property (nonatomic, strong) UIButton *sendButton;
 @property (nonatomic, strong) UIButton *cancelButton;
+@property (nonatomic, strong) NSLayoutConstraint *topViewHeightConstraint;
 
 @end
 
@@ -348,7 +349,7 @@ void FBDialog_swizzled_showWebView(id self, SEL _cmd)
     NSDictionary *views = NSDictionaryOfVariableBindings(_sendButton);
     NSDictionary *metrics = @{@"top": @([UIApplication sharedApplication].statusBarFrame.size.height - 1)};
     [self.topView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"[_sendButton(>=44)]-3.-|" options:0 metrics:nil views:views]];
-    [self.topView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-top-[_sendButton(44)]" options:0 metrics:metrics views:views]];
+    [self.topView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:[_sendButton(44)]-(-1)-|" options:0 metrics:metrics views:views]];
 }
 
 - (void)addCancelButton
@@ -364,7 +365,7 @@ void FBDialog_swizzled_showWebView(id self, SEL _cmd)
     NSDictionary *views = NSDictionaryOfVariableBindings(_cancelButton);
     NSDictionary *metrics = @{@"top": @([UIApplication sharedApplication].statusBarFrame.size.height - 1)};
     [self.topView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"|-9.0-[_cancelButton(>=44)]" options:0 metrics:nil views:views]];
-    [self.topView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-top-[_cancelButton(44)]" options:0 metrics:metrics views:views]];
+    [self.topView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:[_cancelButton(44)]-(-1)-|" options:0 metrics:metrics views:views]];
 }
 
 - (void)addTopView
@@ -377,7 +378,34 @@ void FBDialog_swizzled_showWebView(id self, SEL _cmd)
     NSDictionary *views = NSDictionaryOfVariableBindings(topView);
     NSDictionary *metrics = @{@"height": @([UIApplication sharedApplication].statusBarFrame.size.height + 44)};
     [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"|[topView]|" options:0 metrics:nil views:views]];
-    [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|[topView(height)]" options:0 metrics:metrics views:views]];
+    [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:[topView(height)]-(-1)-|" options:0 metrics:metrics views:views]];
+    
+    self.topViewHeightConstraint = [[[self.view constraints] filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"firstItem = %@ AND firstAttribute = %d", self.topView, NSLayoutAttributeHeight]] firstObject];
+}
+
+#pragma mark - Helpers
+
+- (void)updateTopViewHeightWithWebViewContentOffsetY:(CGFloat)offsetY
+{
+    CGFloat newTopViewHeight = self.topViewHeightConstraint.constant;
+    if(offsetY > 0){
+        newTopViewHeight = [UIApplication sharedApplication].statusBarFrame.size.height + 44 + offsetY;
+    }
+    else{
+        newTopViewHeight = [UIApplication sharedApplication].statusBarFrame.size.height + 44;
+    }
+    
+    if(newTopViewHeight != self.topViewHeightConstraint.constant){
+        self.topViewHeightConstraint.constant = newTopViewHeight;
+        [self.view layoutIfNeeded];
+    }
+}
+
+#pragma mark - UIScrollViewDelegate
+
+- (void)scrollViewDidScroll:(UIScrollView *)scrollView
+{
+    [self updateTopViewHeightWithWebViewContentOffsetY:scrollView.contentOffset.y];
 }
 
 #pragma mark - Actions
