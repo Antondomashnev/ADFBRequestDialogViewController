@@ -118,19 +118,19 @@
         return NO;
     }
 #pragma clang diagnostic pop
-    if(!class_getInstanceVariable(FBDialogClass, "closeButton")){
+    if(!class_getInstanceVariable(FBDialogClass, "_closeButton")){
         NSLog(@"Error: closeButton ivar not found");
         return NO;
     }
-    if(!class_getInstanceVariable(FBDialogClass, "modalBackgroundView")){
+    if(!class_getInstanceVariable(FBDialogClass, "_modalBackgroundView")){
         NSLog(@"Error: modalBackgroundView ivar not found");
         return NO;
     }
-    if(!class_getInstanceVariable(FBDialogClass, "webView")){
+    if(!class_getInstanceVariable(FBDialogClass, "_webView")){
         NSLog(@"Error: webView ivar not found");
         return NO;
     }
-    if(!class_getInstanceVariable(FBDialogClass, "everShown")){
+    if(!class_getInstanceVariable(FBDialogClass, "_everShown")){
         NSLog(@"Error: everShown ivar not found");
         return NO;
     }
@@ -293,9 +293,7 @@ void FBDialog_swizzled_showWebView(id self, SEL _cmd)
 
 + (BOOL)canBePresented
 {
-    
-    
-    return YES;
+    return [FBRequestDialogCustomizer doesCustomizationWork];
 }
 
 #pragma mark - UI
