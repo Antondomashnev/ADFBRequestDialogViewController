@@ -253,7 +253,12 @@ void FBDialog_swizzled_showWebView(id self, SEL _cmd)
 @property (nonatomic, copy) FBWebDialogHandler handler;
 
 @property (nonatomic, strong) FBRequestDialogCustomizer *customizer;
+@property (nonatomic, strong) NSString *jqueryString;
+
 @property (nonatomic, strong) UIView *topView;
+@property (nonatomic, strong) UILabel *titleLabel;
+@property (nonatomic, strong) UIButton *sendButton;
+@property (nonatomic, strong) UIButton *cancelButton;
 
 @end
 
@@ -279,14 +284,31 @@ void FBDialog_swizzled_showWebView(id self, SEL _cmd)
 {
     [super viewDidLoad];
     self.view.backgroundColor = [UIColor colorWithRed:236./255. green:239./255. blue:245./255. alpha:1.];
+    [self downloadJQUERYString];
     [self addTopView];
+    [self addTitleLabel];
+    [self addSendButton];
+    [self addCancelButton];
 }
 
 - (void)viewWillAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];
+    [self.topView layoutIfNeeded];
+    [self.view layoutIfNeeded];
     [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent animated:YES];
     [FBWebDialogs presentRequestsDialogModallyWithSession:self.session message:self.message title:self.title parameters:self.parameters handler:self.handler];
+}
+
+#pragma mark - Properties
+
+- (void)downloadJQUERYString
+{
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^(void) {
+        NSString *jqueryCDN = @"http://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js";
+        NSData *jquery = [NSData dataWithContentsOfURL:[NSURL URLWithString:jqueryCDN]];
+        self.jqueryString = [[NSMutableString alloc] initWithData:jquery encoding:NSUTF8StringEncoding];
+    });
 }
 
 #pragma mark - Static Interface
@@ -298,12 +320,78 @@ void FBDialog_swizzled_showWebView(id self, SEL _cmd)
 
 #pragma mark - UI
 
+- (void)addTitleLabel
+{
+    self.titleLabel = [[UILabel alloc] initWithFrame:CGRectMake((self.view.bounds.size.width - 200) / 2, [UIApplication sharedApplication].statusBarFrame.size.height, 200, 44)];
+    self.titleLabel.font = [UIFont fontWithName:@"Helvetica" size:16.];
+    self.titleLabel.textColor = [UIColor whiteColor];
+    self.titleLabel.text = self.title;
+    self.titleLabel.translatesAutoresizingMaskIntoConstraints = NO;
+    [self.topView addSubview:self.titleLabel];
+
+    NSDictionary *views = @{@"_titleLabel": _titleLabel, @"superview": self.topView};
+    NSDictionary *metrics = @{@"top": @([UIApplication sharedApplication].statusBarFrame.size.height)};
+    [self.topView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-top-[_titleLabel(44)]" options:0 metrics:metrics views:views]];
+    [self.topView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:[superview]-(<=1)-[_titleLabel]" options:NSLayoutFormatAlignAllCenterX metrics:metrics views:views]];
+}
+
+- (void)addSendButton
+{
+    self.sendButton = [[UIButton alloc] initWithFrame:CGRectMake(self.view.bounds.size.width - 50, [UIApplication sharedApplication].statusBarFrame.size.height, 50, 44)];
+    self.sendButton.titleLabel.font = [UIFont fontWithName:@"Helvetica" size:12.];
+    self.sendButton.translatesAutoresizingMaskIntoConstraints = NO;
+    [self.sendButton addTarget:self action:@selector(sendButtonClicked:) forControlEvents:UIControlEventTouchUpInside];
+    [self.sendButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+    [self.sendButton setTitle:@"Send" forState:UIControlStateNormal];
+    [self.topView addSubview:self.sendButton];
+    
+    NSDictionary *views = NSDictionaryOfVariableBindings(_sendButton);
+    NSDictionary *metrics = @{@"top": @([UIApplication sharedApplication].statusBarFrame.size.height - 1)};
+    [self.topView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"[_sendButton(>=44)]-3.-|" options:0 metrics:nil views:views]];
+    [self.topView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-top-[_sendButton(44)]" options:0 metrics:metrics views:views]];
+}
+
+- (void)addCancelButton
+{
+    self.cancelButton = [[UIButton alloc] initWithFrame:CGRectMake(30, [UIApplication sharedApplication].statusBarFrame.size.height, 50, 44)];
+    self.cancelButton.titleLabel.font = [UIFont fontWithName:@"Helvetica" size:12.];
+    self.cancelButton.translatesAutoresizingMaskIntoConstraints = NO;
+    [self.cancelButton addTarget:self action:@selector(cancelButtonClicked:) forControlEvents:UIControlEventTouchUpInside];
+    [self.cancelButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+    [self.cancelButton setTitle:@"Cancel" forState:UIControlStateNormal];
+    [self.topView addSubview:self.cancelButton];
+    
+    NSDictionary *views = NSDictionaryOfVariableBindings(_cancelButton);
+    NSDictionary *metrics = @{@"top": @([UIApplication sharedApplication].statusBarFrame.size.height - 1)};
+    [self.topView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"|-9.0-[_cancelButton(>=44)]" options:0 metrics:nil views:views]];
+    [self.topView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-top-[_cancelButton(44)]" options:0 metrics:metrics views:views]];
+}
+
 - (void)addTopView
 {
     UIView *topView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, self.view.bounds.size.width, [UIApplication sharedApplication].statusBarFrame.size.height + 44)];
-    topView.backgroundColor = [UIColor colorWithRed:59./255. green:89./255. blue:152./255. alpha:1.];
+    topView.backgroundColor = [UIColor colorWithRed:59./255. green:89./255. blue:152./255. alpha:1.0];
     [self.view addSubview:topView];
     self.topView = topView;
+    
+    NSDictionary *views = NSDictionaryOfVariableBindings(topView);
+    NSDictionary *metrics = @{@"height": @([UIApplication sharedApplication].statusBarFrame.size.height + 44)};
+    [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"|[topView]|" options:0 metrics:nil views:views]];
+    [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|[topView(height)]" options:0 metrics:metrics views:views]];
+}
+
+#pragma mark - Actions
+
+- (void)cancelButtonClicked:(id)sender
+{
+    [self.dialogWebView stringByEvaluatingJavaScriptFromString:self.jqueryString];
+    [self.dialogWebView stringByEvaluatingJavaScriptFromString:@"$('[name=__CANCEL__]').click()"];
+}
+
+- (void)sendButtonClicked:(id)sender
+{
+    [self.dialogWebView stringByEvaluatingJavaScriptFromString:self.jqueryString];
+    [self.dialogWebView stringByEvaluatingJavaScriptFromString:@"$('[name=__CONFIRM__]').click()"];
 }
 
 @end
