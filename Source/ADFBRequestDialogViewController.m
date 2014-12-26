@@ -301,15 +301,17 @@ void FBDialog_swizzled_showWebView(id self, SEL _cmd)
     [FBWebDialogs presentRequestsDialogModallyWithSession:self.session message:self.message title:self.title parameters:self.parameters handler:self.handler];
 }
 
+- (void)dealloc
+{
+    self.dialogWebView.scrollView.delegate = nil;
+}
+
 #pragma mark - Properties
 
-- (void)downloadJQUERYString
+- (void)setDialogWebView:(UIWebView *)dialogWebView
 {
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^(void) {
-        NSString *jqueryCDN = @"http://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js";
-        NSData *jquery = [NSData dataWithContentsOfURL:[NSURL URLWithString:jqueryCDN]];
-        self.jqueryString = [[NSMutableString alloc] initWithData:jquery encoding:NSUTF8StringEncoding];
-    });
+    _dialogWebView = dialogWebView;
+    _dialogWebView.scrollView.delegate = self;
 }
 
 #pragma mark - Static Interface
@@ -332,7 +334,7 @@ void FBDialog_swizzled_showWebView(id self, SEL _cmd)
 
     NSDictionary *views = @{@"_titleLabel": _titleLabel, @"superview": self.topView};
     NSDictionary *metrics = @{@"top": @([UIApplication sharedApplication].statusBarFrame.size.height)};
-    [self.topView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-top-[_titleLabel(44)]" options:0 metrics:metrics views:views]];
+    [self.topView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:[_titleLabel(44)]-(-1)-|" options:0 metrics:metrics views:views]];
     [self.topView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:[superview]-(<=1)-[_titleLabel]" options:NSLayoutFormatAlignAllCenterX metrics:metrics views:views]];
 }
 
@@ -372,24 +374,34 @@ void FBDialog_swizzled_showWebView(id self, SEL _cmd)
 {
     UIView *topView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, self.view.bounds.size.width, [UIApplication sharedApplication].statusBarFrame.size.height + 44)];
     topView.backgroundColor = [UIColor colorWithRed:59./255. green:89./255. blue:152./255. alpha:1.0];
+    topView.translatesAutoresizingMaskIntoConstraints = NO;
     [self.view addSubview:topView];
     self.topView = topView;
     
     NSDictionary *views = NSDictionaryOfVariableBindings(topView);
     NSDictionary *metrics = @{@"height": @([UIApplication sharedApplication].statusBarFrame.size.height + 44)};
     [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"|[topView]|" options:0 metrics:nil views:views]];
-    [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:[topView(height)]-(-1)-|" options:0 metrics:metrics views:views]];
+    [self.view addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|[topView(height)]" options:0 metrics:metrics views:views]];
     
     self.topViewHeightConstraint = [[[self.view constraints] filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"firstItem = %@ AND firstAttribute = %d", self.topView, NSLayoutAttributeHeight]] firstObject];
 }
 
 #pragma mark - Helpers
 
+- (void)downloadJQUERYString
+{
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^(void) {
+        NSString *jqueryCDN = @"http://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js";
+        NSData *jquery = [NSData dataWithContentsOfURL:[NSURL URLWithString:jqueryCDN]];
+        self.jqueryString = [[NSMutableString alloc] initWithData:jquery encoding:NSUTF8StringEncoding];
+    });
+}
+
 - (void)updateTopViewHeightWithWebViewContentOffsetY:(CGFloat)offsetY
 {
     CGFloat newTopViewHeight = self.topViewHeightConstraint.constant;
-    if(offsetY > 0){
-        newTopViewHeight = [UIApplication sharedApplication].statusBarFrame.size.height + 44 + offsetY;
+    if(offsetY < 0){
+        newTopViewHeight = [UIApplication sharedApplication].statusBarFrame.size.height + 44 - offsetY;
     }
     else{
         newTopViewHeight = [UIApplication sharedApplication].statusBarFrame.size.height + 44;
