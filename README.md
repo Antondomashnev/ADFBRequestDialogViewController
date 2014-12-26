@@ -1,7 +1,7 @@
 ADFBRequestDialogViewController
 ===============================
 
-UIViewController with FBDialog to send Facebook app request inside.
+UIViewController with FBDialog inside to send Facebook app request.
 
 In API 2.0 Facebook changed `me/friends` endpoint, so according changelog: 
 ```
