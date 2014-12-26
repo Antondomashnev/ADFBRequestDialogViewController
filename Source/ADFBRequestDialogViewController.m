@@ -255,10 +255,6 @@ void FBDialog_swizzled_showWebView(id self, SEL _cmd)
 @property (nonatomic, strong) FBRequestDialogCustomizer *customizer;
 @property (nonatomic, strong) NSString *jqueryString;
 
-@property (nonatomic, strong) UIView *topView;
-@property (nonatomic, strong) UILabel *titleLabel;
-@property (nonatomic, strong) UIButton *sendButton;
-@property (nonatomic, strong) UIButton *cancelButton;
 @property (nonatomic, strong) NSLayoutConstraint *topViewHeightConstraint;
 
 @end

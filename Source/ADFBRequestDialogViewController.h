@@ -15,6 +15,12 @@
 
 @property (nonatomic, weak) UIWebView *dialogWebView;
 
+@property (nonatomic, strong) UIView *topView;
+@property (nonatomic, strong) UILabel *titleLabel;
+@property (nonatomic, strong) UIButton *sendButton;
+@property (nonatomic, strong) UIButton *cancelButton;
+
+
 - (instancetype)initWithSession:(FBSession *)session message:(NSString *)message title:(NSString *)title parameters:(NSDictionary *)parameters handler:(FBWebDialogHandler)handler;
 
 /*!
