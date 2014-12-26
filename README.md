@@ -9,11 +9,11 @@ Friend list now only returns friends who also use your app: The list of friends
 returned via the /me/friends endpoint is now limited to the list 
 of friends that have authorized your app.
 ```
-Therefore if our app isn's a game with canvas support we have only two options to invite user's Facebook friends to our app:
+Therefore if our app isn't a game with canvas support we have only two options to invite user's Facebook friends to our app:
 * Send invite through [message app](https://developers.facebook.com/docs/ios/share#message-dialog)
 * Send app request via [requests dialog](https://developers.facebook.com/docs/games/requests/v2.2#implementation)
 
-Message app is pretty nice, but requests dialog isn't good enough for me. It's pure ```UIWebView```, so there are no customization options of tob bar, buttons and showing animation. Thats why I've developed an ADFBRequestDialogViewController - view controller wrapper for requests dialog. With it you can customize top elements and present dialog whatever you want with iOS UIViewController custom transition.
+Message app is pretty nice, but requests dialog isn't good enough for me. It's pure ```UIWebView```, so there are no customization options of top bar, buttons and showing animation. Thats why I've developed an ADFBRequestDialogViewController - view controller wrapper for requests dialog. With it you can customize top elements and present dialog whatever you want with iOS UIViewController custom transition.
 
 ## Adding ADFBRequestDialogViewController to your project
 
