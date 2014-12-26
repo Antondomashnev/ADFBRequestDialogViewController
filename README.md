@@ -17,8 +17,8 @@ Message app is pretty nice, but requests dialog isn't good enough for me. It's p
 
 ### Comparison
 
-[![](https://dl.dropboxusercontent.com/u/25847340/ADFBRequestDialogViewController/before.png)
-[![](https://dl.dropboxusercontent.com/u/25847340/ADFBRequestDialogViewController/after.png)
+![](https://dl.dropboxusercontent.com/u/25847340/ADFBRequestDialogViewController/before.png)
+![](https://dl.dropboxusercontent.com/u/25847340/ADFBRequestDialogViewController/after.png)
 
 ## Adding ADFBRequestDialogViewController to your project
 
