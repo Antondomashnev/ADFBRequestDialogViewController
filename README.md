@@ -15,6 +15,11 @@ Therefore if our app isn't a game with canvas support we have only two options t
 
 Message app is pretty nice, but requests dialog isn't good enough for me. It's pure ```UIWebView```, so there are no customization options of top bar, buttons and showing animation. Thats why I've developed an ADFBRequestDialogViewController - view controller wrapper for requests dialog. With it you can customize top elements and present dialog whatever you want with iOS UIViewController custom transition.
 
+### Comparison
+
+[![](https://dl.dropboxusercontent.com/u/25847340/ADFBRequestDialogViewController/before.png)
+[![](https://dl.dropboxusercontent.com/u/25847340/ADFBRequestDialogViewController/after.png)
+
 ## Adding ADFBRequestDialogViewController to your project
 
 ### Cocoapods (Soon)
