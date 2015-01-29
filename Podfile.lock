@@ -1,0 +1,16 @@
+PODS:
+  - Bolts (1.1.3)
+  - Facebook-iOS-SDK (3.21.1):
+    - Bolts (~> 1.0)
+  - JRSwizzle (1.0)
+
+DEPENDENCIES:
+  - Facebook-iOS-SDK
+  - JRSwizzle (~> 1.0)
+
+SPEC CHECKSUMS:
+  Bolts: 3db0a875235e0c9042b013af13af0f00f79b102c
+  Facebook-iOS-SDK: 18c26e86ab25c17854a2ee2a8f60562099c6600f
+  JRSwizzle: 30da7a2c539a4ebf954b16d15f6dd8221c9f6fa5
+
+COCOAPODS: 0.35.0
