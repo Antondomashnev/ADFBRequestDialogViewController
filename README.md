@@ -22,7 +22,7 @@ Message app is pretty nice, but requests dialog isn't good enough for me. It's p
 
 ## Adding ADFBRequestDialogViewController to your project
 
-### Cocoapods
+### CocoaPods
 
 [CocoaPods](http://cocoapods.org) is the recommended way to add ADFBRequestDialogViewController to your project.
 1. Add a pod entry for ADFBRequestDialogViewController to your Podfile `pod 'ADFBRequestDialogViewController'`
